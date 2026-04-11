@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(git rev-parse --show-toplevel)/scripts/fetch-externals.sh",
+            "statusMessage": "Syncing external reference repos",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
