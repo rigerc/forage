@@ -4,8 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rigerc/ref-repo-fetch/internal/config"
-	"github.com/rigerc/ref-repo-fetch/internal/ui"
+	"github.com/rigerc/forage/internal/config"
+	"github.com/rigerc/forage/internal/ui"
 )
 
 func resolveProjectDir() string {

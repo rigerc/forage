@@ -2,38 +2,38 @@
 
 ## Fetch Externals
 
-This project includes a Go CLI (`fetch-externals`) that clones and pulls external repositories declared in `.externals.json`. Use it to pull in reference source code or documentation that other skills/tools need to inspect.
+This project includes a Go CLI (`forage`) that clones and pulls external repositories declared in `.externals.json`. Use it to pull in reference source code or documentation that other skills/tools need to inspect.
 
 ### Quick Reference
 
 ```sh
 # Build (run once after changes)
-go build -o fetch-externals .
+go build -o forage .
 
 # Sync all repos (clone missing, pull outdated)
-./fetch-externals
+./forage
 
 # Add a repo directly (owner/repo shorthand or full URL)
-./fetch-externals add owner/repo
-./fetch-externals add https://github.com/user/repo.git
+./forage add owner/repo
+./forage add https://github.com/user/repo.git
 
 # Add repos interactively
-./fetch-externals add
+./forage add
 
 # Remove repos (multi-select TUI)
-./fetch-externals remove
+./forage remove
 
 # List configured repos
-./fetch-externals list
+./forage list
 
 # Re-run the full config wizard
-./fetch-externals edit
+./forage edit
 
 # Open .externals.json in $EDITOR
-./fetch-externals open
+./forage open
 
 # Use a specific config file
-./fetch-externals --config path/to/.externals.json list
+./forage --config path/to/.externals.json list
 ```
 
 ### Config Format

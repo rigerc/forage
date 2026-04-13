@@ -93,7 +93,7 @@ func EnsureGitignore(projectDir, targetDir string) error {
 	data, err := os.ReadFile(gitignorePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			content := "# managed by fetch-externals\n" + entry + "\n"
+			content := "# managed by forage\n" + entry + "\n"
 			return os.WriteFile(gitignorePath, []byte(content), 0644)
 		}
 		return fmt.Errorf("reading .gitignore: %w", err)
@@ -113,7 +113,7 @@ func EnsureGitignore(projectDir, targetDir string) error {
 	}
 	defer f.Close()
 
-	content := "\n# managed by fetch-externals\n" + entry + "\n"
+	content := "\n# managed by forage\n" + entry + "\n"
 	if _, err := f.WriteString(content); err != nil {
 		return fmt.Errorf("writing .gitignore: %w", err)
 	}

@@ -1,4 +1,4 @@
-module github.com/rigerc/ref-repo-fetch
+module github.com/rigerc/forage
 
 go 1.26.1
 

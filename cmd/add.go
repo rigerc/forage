@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/rigerc/ref-repo-fetch/internal/config"
-	"github.com/rigerc/ref-repo-fetch/internal/gitops"
-	"github.com/rigerc/ref-repo-fetch/internal/prompt"
-	"github.com/rigerc/ref-repo-fetch/internal/ui"
+	"github.com/rigerc/forage/internal/config"
+	"github.com/rigerc/forage/internal/gitops"
+	"github.com/rigerc/forage/internal/prompt"
+	"github.com/rigerc/forage/internal/ui"
 	"github.com/spf13/cobra"
 )
 

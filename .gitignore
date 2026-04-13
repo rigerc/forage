@@ -3,5 +3,4 @@ externals/
 .agents/
 docs/
 .codex/
-fetch-externals
-ref-repo-fetch
+forage

@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/rigerc/ref-repo-fetch/internal/prompt"
-	"github.com/rigerc/ref-repo-fetch/internal/ui"
+	"github.com/rigerc/forage/internal/prompt"
+	"github.com/rigerc/forage/internal/ui"
 	"github.com/spf13/cobra"
 )
 

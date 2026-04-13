@@ -6,18 +6,18 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/rigerc/ref-repo-fetch/internal/config"
-	"github.com/rigerc/ref-repo-fetch/internal/gitops"
-	"github.com/rigerc/ref-repo-fetch/internal/prompt"
-	"github.com/rigerc/ref-repo-fetch/internal/ui"
+	"github.com/rigerc/forage/internal/config"
+	"github.com/rigerc/forage/internal/gitops"
+	"github.com/rigerc/forage/internal/prompt"
+	"github.com/rigerc/forage/internal/ui"
 	"github.com/spf13/cobra"
 )
 
 var cfgPath string
 
 var rootCmd = &cobra.Command{
-	Use:   "fetch-externals",
-	Short: "Fetch reference documentation from external repositories",
+	Use:   "forage",
+	Short: "Gather external repositories into your project",
 	Long: `Clone or pull external repositories declared in .externals.json,
 keeping project dependencies on reference material up to date.`,
 	SilenceUsage:  true,

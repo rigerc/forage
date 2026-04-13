@@ -8,9 +8,9 @@ import (
 	"github.com/indaco/prompti"
 	"github.com/indaco/prompti/confirm"
 	"github.com/indaco/prompti/input"
-	"github.com/rigerc/ref-repo-fetch/internal/config"
-	"github.com/rigerc/ref-repo-fetch/internal/gitops"
-	"github.com/rigerc/ref-repo-fetch/internal/ui"
+	"github.com/rigerc/forage/internal/config"
+	"github.com/rigerc/forage/internal/gitops"
+	"github.com/rigerc/forage/internal/ui"
 )
 
 func CollectReposInteractive(existing []config.RepoEntry) ([]config.RepoEntry, error) {

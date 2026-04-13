@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rigerc/ref-repo-fetch/internal/prompt"
+	"github.com/rigerc/forage/internal/prompt"
 	"github.com/spf13/cobra"
 )
 
