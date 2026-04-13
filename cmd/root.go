@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/rigerc/ref-repo-fetch/internal/config"
 	"github.com/rigerc/ref-repo-fetch/internal/gitops"
@@ -64,7 +65,7 @@ func runSync() error {
 	absTarget := gitops.AbsTarget(projectDir, targetDir)
 	absReal := filepath.Clean(filepath.Join(projectDir, targetDir))
 	if config.IsUnsafePath(absReal) {
-		return fmt.Errorf("resolved target '%s' is unsafe — refusing to operate", absReal)
+		return fmt.Errorf("resolved target %q is unsafe — refusing to operate", absReal)
 	}
 
 	if err := os.MkdirAll(absTarget, 0755); err != nil {
@@ -83,7 +84,7 @@ func runSync() error {
 	ui.LogInfo("processing %d repos -> %s/", len(cfg.Repos), targetDir)
 	fmt.Println()
 
-	var results []ui.Result
+	results := []ui.Result{}
 
 	for _, repo := range cfg.Repos {
 		dest := filepath.Join(absTarget, repo.Name)
@@ -102,8 +103,11 @@ func runSync() error {
 			if incoming == 0 {
 				ui.LogSuccess("%s: already up to date", repo.Name)
 				results = append(results, ui.Result{
-					Name: repo.Name, Status: "current",
-					Commits: "0", Files: "0", SparseLabel: sparseLabel,
+					Name:        repo.Name,
+					Status:      "current",
+					Commits:     "0",
+					Files:       "0",
+					SparseLabel: sparseLabel,
 				})
 				continue
 			}
@@ -113,34 +117,56 @@ func runSync() error {
 			if err := gitops.PullRepo(dest, repo.Branch, repo.Sparse); err != nil {
 				ui.LogError("%s: pull failed: %s", repo.Name, err)
 				results = append(results, ui.Result{
-					Name: repo.Name, Status: "failed",
-					Commits: fmt.Sprintf("%d", incoming), Files: "0", SparseLabel: sparseLabel,
+					Name:        repo.Name,
+					Status:      "failed",
+					Commits:     strconv.Itoa(incoming),
+					Files:       "0",
+					SparseLabel: sparseLabel,
 				})
 				continue
 			}
 
 			files, _ := gitops.CountChanges(dest, prevHead)
-			ui.LogSuccess("%s: pulled %d commit(s), %d file(s) changed", repo.Name, incoming, files)
+			ui.LogSuccess(
+				"%s: pulled %d commit(s), %d file(s) changed",
+				repo.Name,
+				incoming,
+				files,
+			)
 			results = append(results, ui.Result{
-				Name: repo.Name, Status: "pulled",
-				Commits: fmt.Sprintf("%d", incoming), Files: fmt.Sprintf("%d", files), SparseLabel: sparseLabel,
+				Name:        repo.Name,
+				Status:      "pulled",
+				Commits:     strconv.Itoa(incoming),
+				Files:       strconv.Itoa(files),
+				SparseLabel: sparseLabel,
 			})
 		} else {
-			ui.LogInfo("%s: cloning %s (%s)...", repo.Name, repo.URL, repo.Branch)
+			ui.LogInfo(
+				"%s: cloning %s (%s)...",
+				repo.Name,
+				repo.URL,
+				repo.Branch,
+			)
 
 			if err := gitops.CloneRepo(repo.URL, dest, repo.Branch, repo.Sparse); err != nil {
 				ui.LogError("%s: clone failed: %s", repo.Name, err)
 				results = append(results, ui.Result{
-					Name: repo.Name, Status: "failed",
-					Commits: "-", Files: "-", SparseLabel: sparseLabel,
+					Name:        repo.Name,
+					Status:      "failed",
+					Commits:     "-",
+					Files:       "-",
+					SparseLabel: sparseLabel,
 				})
 				continue
 			}
 
 			ui.LogSuccess("%s: cloned", repo.Name)
 			results = append(results, ui.Result{
-				Name: repo.Name, Status: "cloned",
-				Commits: "-", Files: "-", SparseLabel: sparseLabel,
+				Name:        repo.Name,
+				Status:      "cloned",
+				Commits:     "-",
+				Files:       "-",
+				SparseLabel: sparseLabel,
 			})
 		}
 	}

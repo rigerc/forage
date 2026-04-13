@@ -13,6 +13,8 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 )
 
+var errStop = errors.New("stop iteration")
+
 func IsGitRepo(dest string) bool {
 	_, err := git.PlainOpen(dest)
 	return err == nil
@@ -184,12 +186,12 @@ func CountIncoming(dest, branch string) (int, error) {
 	count := 0
 	err = iter.ForEach(func(c *object.Commit) error {
 		if c.Hash == headHash {
-			return fmt.Errorf("stop")
+			return errStop
 		}
 		count++
 		return nil
 	})
-	if err != nil && err.Error() != "stop" {
+	if err != nil && !errors.Is(err, errStop) {
 		return 0, nil
 	}
 

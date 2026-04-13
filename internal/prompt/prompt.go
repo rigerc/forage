@@ -1,9 +1,11 @@
 package prompt
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/indaco/prompti"
 	"github.com/indaco/prompti/confirm"
 	"github.com/indaco/prompti/input"
 	"github.com/rigerc/ref-repo-fetch/internal/config"
@@ -19,27 +21,12 @@ func CollectReposInteractive(existing []config.RepoEntry) ([]config.RepoEntry, e
 		fmt.Println()
 		fmt.Println(boldStyle.Render("--- Add repository ---"))
 
-		name, err := input.Run(&input.Config{
-			Message:     "Name: ",
-			Placeholder: "my-repo",
-		})
-		if err != nil {
-			if strings.Contains(err.Error(), "cancelled") {
-				return repos, nil
-			}
-			return repos, err
-		}
-		if name == "" {
-			ui.LogError("repository name is required")
-			continue
-		}
-
 		rawURL, err := input.Run(&input.Config{
 			Message:     "URL: ",
 			Placeholder: "owner/repo or https://github.com/user/repo.git",
 		})
 		if err != nil {
-			if strings.Contains(err.Error(), "cancelled") {
+			if errors.Is(err, prompti.ErrCancelled) {
 				return repos, nil
 			}
 			return repos, err
@@ -50,6 +37,33 @@ func CollectReposInteractive(existing []config.RepoEntry) ([]config.RepoEntry, e
 		}
 
 		resolvedURL := config.ResolveURL(rawURL)
+		inferredName := config.NameFromURL(rawURL)
+
+		namePlaceholder := "my-repo"
+		nameInitial := ""
+		if inferredName != "" {
+			namePlaceholder = inferredName
+			nameInitial = inferredName
+		}
+
+		name, err := input.Run(&input.Config{
+			Message:     "Name: ",
+			Placeholder: namePlaceholder,
+			Initial:     nameInitial,
+		})
+		if err != nil {
+			if errors.Is(err, prompti.ErrCancelled) {
+				return repos, nil
+			}
+			return repos, err
+		}
+		if name == "" {
+			name = inferredName
+		}
+		if name == "" {
+			ui.LogError("repository name is required")
+			continue
+		}
 
 		detectedBranch, _ := gitops.DetectDefaultBranch(resolvedURL)
 
@@ -68,38 +82,37 @@ func CollectReposInteractive(existing []config.RepoEntry) ([]config.RepoEntry, e
 			Initial:     branchInitial,
 		})
 		if err != nil {
-			if strings.Contains(err.Error(), "cancelled") {
+			if errors.Is(err, prompti.ErrCancelled) {
 				return repos, nil
 			}
 			return repos, err
 		}
 		if branch == "" {
+			branch = "main"
 			if detectedBranch != "" {
 				branch = detectedBranch
-			} else {
-				branch = "main"
 			}
 		}
 
-		useSparse, err := confirm.Run(&confirm.Config{
+		fullClone, err := confirm.Run(&confirm.Config{
 			Mode:     confirm.ModeInline,
-			Question: "Fetch only specific paths (sparse checkout)?",
+			Question: "Fetch full repository?",
 		})
 		if err != nil {
-			if strings.Contains(err.Error(), "cancelled") {
+			if errors.Is(err, prompti.ErrCancelled) {
 				return repos, nil
 			}
 			return repos, err
 		}
 
-		var sparsePaths []string
-		if useSparse {
+		sparsePaths := []string{}
+		if !fullClone {
 			pathsStr, err := input.Run(&input.Config{
 				Message:     "Paths: ",
 				Placeholder: "src/lib,docs/README.md",
 			})
 			if err != nil {
-				if strings.Contains(err.Error(), "cancelled") {
+				if errors.Is(err, prompti.ErrCancelled) {
 					return repos, nil
 				}
 				return repos, err
@@ -182,7 +195,7 @@ func RemoveReposInteractive(cfg *config.Config, configPath string) error {
 
 	selected, err := RunMultiSelect("Select repos to remove (space to toggle, enter to confirm)", names)
 	if err != nil {
-		if err.Error() == "cancelled" {
+		if errors.Is(err, prompti.ErrCancelled) {
 			ui.LogInfo("nothing selected")
 			return nil
 		}
@@ -199,7 +212,7 @@ func RemoveReposInteractive(cfg *config.Config, configPath string) error {
 		removeSet[name] = true
 	}
 
-	var remaining []config.RepoEntry
+	remaining := []config.RepoEntry{}
 	for _, r := range cfg.Repos {
 		if removeSet[r.Name] {
 			ui.LogWarn("removed: %s", r.Name)

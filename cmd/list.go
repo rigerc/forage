@@ -27,7 +27,14 @@ func runList() error {
 		return nil
 	}
 
-	fmt.Printf("  %-3s %-20s %-40s %-12s %s\n", "#", "NAME", "URL", "BRANCH", "SPARSE")
+	fmt.Printf(
+		"  %-3s %-20s %-40s %-12s %s\n",
+		"#",
+		"NAME",
+		"URL",
+		"BRANCH",
+		"SPARSE",
+	)
 	fmt.Println("  ─────────────────────────────────────────────────────────────────")
 
 	for i, repo := range cfg.Repos {
@@ -35,8 +42,14 @@ func runList() error {
 		if len(repo.Sparse) > 0 {
 			sparseLabel = "yes"
 		}
-		fmt.Printf("  %-3d %-20s %-40s %-12s %s\n",
-			i, repo.Name, repo.URL, repo.Branch, sparseLabel)
+		fmt.Printf(
+			"  %-3d %-20s %-40s %-12s %s\n",
+			i,
+			repo.Name,
+			repo.URL,
+			repo.Branch,
+			sparseLabel,
+		)
 	}
 
 	return nil

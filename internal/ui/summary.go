@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"charm.land/lipgloss/v2"
 )
@@ -13,7 +14,6 @@ var (
 	yellowStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
 	cyanStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
 	redStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
-	resetStyle  = lipgloss.NewStyle()
 )
 
 type Result struct {
@@ -51,7 +51,14 @@ func PrintSummary(results []Result) {
 	fmt.Println(boldStyle.Render(" Summary"))
 	fmt.Println(separator)
 
-	fmt.Printf("  %-25s %-10s %-10s %-8s %-8s\n", "REPO", "STATUS", "COMMITS", "FILES", "SPARSE")
+	fmt.Printf(
+		"  %-25s %-10s %-10s %-8s %-8s\n",
+		"REPO",
+		"STATUS",
+		"COMMITS",
+		"FILES",
+		"SPARSE",
+	)
 	fmt.Println("  ─────────────────────────────────────────────────────────")
 
 	cloned, pulled, current, failed := 0, 0, 0, 0
@@ -88,7 +95,8 @@ func PrintSummary(results []Result) {
 			statusStyle = redStyle
 		}
 
-		fmt.Printf("  %-25s %s %-10s %-8s %-8s\n",
+		fmt.Printf(
+			"  %-25s %s %-10s %-8s %-8s\n",
 			r.Name,
 			statusStyle.Render(fmt.Sprintf("%-10s", r.Status)),
 			r.Commits,
@@ -99,17 +107,17 @@ func PrintSummary(results []Result) {
 
 	fmt.Println("  ─────────────────────────────────────────────────────────")
 	totalStatus := fmt.Sprintf("%dc/%dp/%du/%df", cloned, pulled, current, failed)
-	fmt.Printf("  %s %-10s %-10s %-8s\n",
+	fmt.Printf(
+		"  %s %-10s %-10s %-8s\n",
 		boldStyle.Render(fmt.Sprintf("%-25s", "TOTAL")),
 		totalStatus,
-		fmt.Sprintf("%d", totalCommits),
-		fmt.Sprintf("%d", totalFiles),
+		strconv.Itoa(totalCommits),
+		strconv.Itoa(totalFiles),
 	)
 	fmt.Println(separator)
 }
 
 func parseCount(s string) int {
-	var n int
-	fmt.Sscanf(s, "%d", &n)
+	n, _ := strconv.Atoi(s)
 	return n
 }

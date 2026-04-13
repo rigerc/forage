@@ -42,10 +42,22 @@ func ResolveURL(input string) string {
 	return input
 }
 
+func NameFromURL(rawURL string) string {
+	base := rawURL
+	if ownerRepoPattern.MatchString(rawURL) {
+		base = "https://github.com/" + rawURL + ".git"
+	}
+	base = strings.TrimSuffix(filepath.Base(base), ".git")
+	if base == "" || base == "." || base == ".." {
+		return ""
+	}
+	return base
+}
+
 func ValidateTargetDir(dir string) error {
 	cleaned := filepath.Clean(dir)
 	if cleaned == "/" || cleaned == ".." {
-		return fmt.Errorf("target directory '%s' is unsafe", dir)
+		return fmt.Errorf("target directory %q is unsafe", dir)
 	}
 	return nil
 }
@@ -109,32 +121,30 @@ func EnsureGitignore(projectDir, targetDir string) error {
 }
 
 func ResolveProjectDir() (string, error) {
-	exe, err := os.Executable()
+	cwd, err := os.Getwd()
 	if err != nil {
-		return "", fmt.Errorf("resolving executable: %w", err)
-	}
-	scriptDir := filepath.Dir(exe)
-
-	if scriptDir == "/" {
-		return "", fmt.Errorf("refusing to run from filesystem root")
+		return "", fmt.Errorf("resolving working directory: %w", err)
 	}
 
-	parentDir := filepath.Dir(scriptDir)
+	dir := cwd
+	for {
+		if fileExists(filepath.Join(dir, ".externals.json")) {
+			break
+		}
 
-	if IsUnsafePath(scriptDir) {
-		return "", fmt.Errorf("resolved project dir is '%s' — refusing to operate", scriptDir)
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			dir = cwd
+			break
+		}
+		dir = parent
 	}
 
-	scriptConfig := filepath.Join(scriptDir, ".externals.json")
-	parentConfig := filepath.Join(parentDir, ".externals.json")
+	if IsUnsafePath(dir) {
+		return "", fmt.Errorf("resolved project dir is %q — refusing to operate", dir)
+	}
 
-	if fileExists(scriptConfig) {
-		return scriptDir, nil
-	}
-	if fileExists(parentConfig) {
-		return parentDir, nil
-	}
-	return parentDir, nil
+	return dir, nil
 }
 
 func fileExists(path string) bool {

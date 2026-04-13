@@ -10,6 +10,8 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
+var boldStyle = lipgloss.NewStyle().Bold(true)
+
 type multiItem struct {
 	name string
 }
@@ -163,7 +165,7 @@ func RunMultiSelect(header string, items []string) ([]string, error) {
 		return nil, fmt.Errorf("cancelled")
 	}
 
-	var selected []string
+	selected := []string{}
 	for idx := range result.selected {
 		if idx >= 0 && idx < len(result.items) {
 			selected = append(selected, result.items[idx].name)
@@ -172,5 +174,3 @@ func RunMultiSelect(header string, items []string) ([]string, error) {
 
 	return selected, nil
 }
-
-var boldStyle = lipgloss.NewStyle().Bold(true)

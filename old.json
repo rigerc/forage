@@ -1,0 +1,11 @@
+{
+  "target_dir": "externals",
+  "repos": [
+    {
+      "name": "prompti",
+      "url": "https://github.com/indaco/prompti",
+      "branch": "main",
+      "sparse": []
+    }
+  ]
+}
