@@ -97,40 +97,41 @@ func PullRepo(dest, branch string, sparsePaths []string) error {
 		return fmt.Errorf("worktree: %w", err)
 	}
 
-	refName := plumbing.ReferenceName("refs/heads/" + branch)
-
-	if len(sparsePaths) > 0 {
-		headRef, err := repo.Head()
-		if err == nil {
-			wt.Checkout(&git.CheckoutOptions{
-				Hash:                      headRef.Hash(),
-				SparseCheckoutDirectories: sparsePaths,
-				Force:                     true,
-			})
-		}
+	if err := wt.Reset(&git.ResetOptions{Mode: git.HardReset}); err != nil {
+		return fmt.Errorf("resetting worktree: %w", err)
 	}
 
-	err = wt.Pull(&git.PullOptions{
-		RemoteName:    "origin",
-		ReferenceName: refName,
-		SingleBranch:  true,
+	err = repo.Fetch(&git.FetchOptions{
+		RemoteName: "origin",
+		RefSpecs: []config.RefSpec{
+			config.RefSpec("refs/heads/" + branch + ":refs/remotes/origin/" + branch),
+		},
 	})
 	if err != nil {
 		if errors.Is(err, git.NoErrAlreadyUpToDate) {
 			return nil
 		}
-		return fmt.Errorf("pull: %w", err)
+		return fmt.Errorf("fetch: %w", err)
+	}
+
+	remoteRef, err := repo.Reference(plumbing.ReferenceName("refs/remotes/origin/"+branch), true)
+	if err != nil {
+		return fmt.Errorf("resolving remote ref: %w", err)
+	}
+
+	if err := wt.Reset(&git.ResetOptions{
+		Mode:   git.HardReset,
+		Commit: remoteRef.Hash(),
+	}); err != nil {
+		return fmt.Errorf("resetting to remote: %w", err)
 	}
 
 	if len(sparsePaths) > 0 {
-		headRef, err := repo.Head()
-		if err == nil {
-			return wt.Checkout(&git.CheckoutOptions{
-				Hash:                      headRef.Hash(),
-				SparseCheckoutDirectories: sparsePaths,
-				Force:                     true,
-			})
-		}
+		return wt.Checkout(&git.CheckoutOptions{
+			Hash:                      remoteRef.Hash(),
+			SparseCheckoutDirectories: sparsePaths,
+			Force:                     true,
+		})
 	}
 
 	return nil

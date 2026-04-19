@@ -76,7 +76,7 @@ func (m multiSelectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "esc":
 			m.quitting = true
 			return m, tea.Quit
-		case " ":
+		case "space":
 			idx := m.list.Index()
 			if m.selected[idx] {
 				delete(m.selected, idx)
@@ -144,8 +144,6 @@ func RunMultiSelect(header string, items []string) ([]string, error) {
 	l.SetShowPagination(false)
 	l.KeyMap.Quit.SetEnabled(false)
 	l.KeyMap.Filter.SetEnabled(false)
-
-	delegate.selected = make(map[int]bool)
 
 	m := multiSelectModel{
 		list:     l,
